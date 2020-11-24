@@ -6,27 +6,31 @@ const PORT = 5004;
 let app = express();
 app.use(express.json());
 
-// connect to the database.
+// Here we connect to the database.
 let db = new sqlite3.Database("borger.sqlite", (err) => {
     if (err) {
+        // this message shows that the connection to the database was unsuccessful
         return console.log(err.message);
     }
+    // this message show that the connection was successfully
     console.log("Connected to Database");
 });
 
-// Create or Insert a Borger User
+// here we are able to Create a Borgeruser
 app.post("/api/borger", (req, res) => {
     let borgerUserId = req.body.UserId;
     let creationDate = new Date().toISOString();
     let sql = `INSERT INTO BorgerUser(UserId, CreatedAt) Values(?, ?)`;
     db.run(sql, [borgerUserId, creationDate], (err) => {
         if (err) {
+            // this message is to show that it was not possible to create the user
             res.status(400).json({
                 message: "Problem in creating a user!",
                 error: err.message
             });
             console.log(err.message);
         } else {
+            // this message is to show that the user has been created
             console.log("A new row has been created");
             res.status(201).json({
                 message: "A borger user is created."
@@ -36,16 +40,18 @@ app.post("/api/borger", (req, res) => {
    
 });
 
-// Read Borger all Users
+// Here we are able Read all Borgerusers
 app.get("/api/borger", (req, res) => {
     let sql = `SELECT * FROM BorgerUser`;
     db.all(sql, [], (err, borgerUser) => {
         if (err) {
+            // this message is to show that it was not possible to find the users
             res.status(400).json({
                 message: "Problem! Cann't show borger users",
                 error: err
             });
         } else {
+            // this message is to show that all the users was found
             res.status(200).json({
                 borgerUser
             });
@@ -58,25 +64,28 @@ app.get("/api/borger", (req, res) => {
 });
 
 
-// Read Borger user by ID
+// Here we are able to read Borgeruser by their ID
 app.get("/api/borger/:id", (req, res) => {
     console.log("req.params.id: ", req.params.id);
     let sql = `SELECT * FROM BorgerUser WHERE ID = ?`;
 
     db.all(sql, [req.params.id], (err, borgerUser) => {
         if (err) {
+            // this message is to show that it was not possible to find the users
             res.status(400).json({
                 erroe: err
             });
             console.log(err);
         } else {
             if (borgerUser.length) {
+                // this message is to show that it was possible to find the user by that id
                 res.status(200).json({
                     borgerUser
                 });
             } else {
                 res.status(404).json({
-                    message: "Nn Borger user was found with this ID."
+                    // this message is to show that it was not possible to find the user by that id
+                    message: "No Borger user was found with this ID."
                 });
             }
         }
@@ -85,7 +94,7 @@ app.get("/api/borger/:id", (req, res) => {
 });
 
 
-// Update Borger User
+// Here we are able to update the Borgeruser
 app.put("/api/borger/:id", (req, res) => {
     console.log("req.params.id: ", req.params.id);
     let borgerUserId = req.body.UserId;
@@ -94,11 +103,13 @@ app.put("/api/borger/:id", (req, res) => {
     let createdAt = new Date().toISOString();
     db.all(sqlGet, [req.params.id], (err, borgerUser) => {
         if (err) {
+            // this message is to show that is was not possible to find the user by that id
             res.status(400).json({
                 error: err
             });
             console.log(err);
         } else {
+            //this message is to show that it was not possible to find the user by that id
             if(!borgerUser.length) {
                 res.status(404).json({
                     message: "No Borger user was found with this ID"
@@ -106,12 +117,14 @@ app.put("/api/borger/:id", (req, res) => {
             } else {
                 db.run(sqlUpdate, [borgerUserId, createdAt, req.params.id], (err) => {
                     if (err) {
+                        // this message is to show that it was not possible to update the user
                         res.status(400).json({
                             message: "This borger user could not be updated",
                             error: err.message
                         });
                         console.log(err.message);
                     } else {
+                        // this message is to show that the user has been successfully updated
                         res.status(201).json({
                             message: "Borger User updated"
                         });
@@ -138,6 +151,7 @@ app.delete("/api/borger/:id", (req, res) => {
             console.log(err);
         } else {
             if (!borgerUser.length) {
+                //this message is to show that it was not possible to find the user by that id
                 res.status(404).json({
                     message: "No borger user was found with this ID"
                 });
@@ -146,12 +160,14 @@ app.delete("/api/borger/:id", (req, res) => {
                 db.run(sqlDelete, req.params.id, (err) => {
                     if (err) {
                         res.status(400).json({
+                            // this message is to show that it not possible to delete the user.
                             message: "This borger user can not be deleted",
                             error: err.message
                         });
                         console.log(err.message);
                     } else {
                         res.status(201).json({
+                            // this message is to show that user was successfully deleted
                             message: "Borger User Deleted"
                         });
                     }
@@ -170,6 +186,7 @@ app.delete("/api/borger/:id", (req, res) => {
                 console.log(err);
             } else {
                 if (row.length) {
+                    // this message is to show that the Adress has been successfully deleted
                     console.log("Adress Deleted!")
                 }
             }
@@ -188,9 +205,6 @@ app.post("/api/borger/address", (req, res) => {
     let uddateAddress = `UPDATE Address SET IsValid = 0 WHERE BorgerUserId = ? AND IsValid = ?`;
     let sql = `INSERT INTO Address(BorgerUserId, Address, CreatedAt, Isvalid) Values(?, ?, ?, ?)`;
     let retrivedId;
-
-
-
     // Create User address if user is exist...
 
     // Check USER exist or not
@@ -211,6 +225,7 @@ app.post("/api/borger/address", (req, res) => {
                 
             } else {
                 res.status(404).json({
+                    // this message is to show that there was no user with that id
                     message: "No Borger user was found with this ID."
                 });
                 }
@@ -223,6 +238,7 @@ app.post("/api/borger/address", (req, res) => {
         db.all(uddateAddress, [id, 1], (err, row) => {
             if (err) {
                 res.status(400).json({
+                    //this message is to show that the address could not be updated
                     message: "This address could not be updated",
                     error: err.message
                 });
@@ -230,6 +246,7 @@ app.post("/api/borger/address", (req, res) => {
             } else {
                 if (row.length){
                 res.json({
+                    // this message is to show that the address has been successfully updated
                     message: "Address updated"
                 });
                 } else {}
@@ -243,11 +260,13 @@ app.post("/api/borger/address", (req, res) => {
         db.run(sql, [userId, address, createdAt, isValid], (err) => {
             if (err) {
                 res.status(400).json({
+                    // this message is to show that there was a problem in creating the address
                     message: "Problem in creating an address!",
                     error: err.message
                 });
                 console.log(err.message);
             } else {
+                // this message is to show that the address was successfully created
                 console.log("A new row has been created");
                 res.status(201).json({
                     message: "An Address is created."
@@ -264,11 +283,13 @@ app.get("/api/borger/address", (req, res) => {
     db.all(sql, [], (err, address) => {
         if (err) {
             res.status(400).json({
-                message: "Problem! Cann't show address",
+                // this message is to show that the address can't be found
+                message: "Problem! Can't show address",
                 error: err
             });
         } else {
             res.status(200).json({
+                // this message is to show that the address can be found
                 address
             });
         }
@@ -284,17 +305,20 @@ app.get("/api/borger/address/:id", (req, res) => {
 
     db.all(sql, [req.params.id], (err, address) => {
         if (err) {
+            // this message is to show that the address by this id can't be found
             res.status(400).json({
                 erroe: err
             });
             console.log(err);
         } else {
             if (address.length) {
+                // this message is to show that the address has been successfully found with this id
                 res.status(200).json({
                     address
                 });
             } else {
                 res.status(404).json({
+                    // this message is to show that the address by this id can't be found
                     message: "No Address was found with this ID."
                 });
             }
@@ -321,6 +345,7 @@ app.put("/api/borger/address/:id", (req, res) => {
             console.log(err);
         } else {
             if(!addresses.length) {
+                // this message is to show that the address by that id could not be found
                 res.status(404).json({
                     message: "No Address was found with this ID"
                 });
@@ -328,12 +353,14 @@ app.put("/api/borger/address/:id", (req, res) => {
                 db.run(sqlUpdate, [addressBorgerUserId, address, createdAt, isValid, req.params.id], (err) => {
                     if (err) {
                         res.status(400).json({
+                            // this message is to show that the address was not possible to be updated
                             message: "This address could not be updated",
                             error: err.message
                         });
                         console.log(err.message);
                     } else {
                         res.status(201).json({
+                            // this message is to show that the address was successfully updated
                             message: "Address updated"
                         });
                     }
@@ -358,6 +385,7 @@ app.delete("/api/borger/address/:id", (req, res) => {
             console.log(err);
         } else {
             if (!address.length) {
+                // this message is to show that the address by that id could not be found
                 res.status(404).json({
                     message: "No address was found with this ID"
                 });
@@ -365,12 +393,14 @@ app.delete("/api/borger/address/:id", (req, res) => {
                 db.run(sqlDelete, req.params.id, (err) => {
                     if (err) {
                         res.status(400).json({
+                            // this message is to show that the address is not possible to delete
                             message: "This address can not be deleted",
                             error: err.message
                         });
                         console.log(err.message);
                     } else {
                         res.status(201).json({
+                            // this message is to show that the address has successfully been deleted
                             message: "Address Deleted"
                         });
                     }

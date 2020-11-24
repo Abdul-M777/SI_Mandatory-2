@@ -7,7 +7,7 @@ const PORT = 5006;
 let app = express();
 app.use(express.json());
 
-// connect to the database
+// Here we connect to the database
 let db = new sqlite3.Database("Skat.sqlite", (err) => {
     if(err) {
         return console.log(err.message);
@@ -15,7 +15,7 @@ let db = new sqlite3.Database("Skat.sqlite", (err) => {
     console.log("Connected to Database");
 });
 
-// Create a Skat User
+// Here we create a Skat User
 app.post("/api/skat-user", (req, res) => {
     let UserId = req.body.userId;
     let createdAt = new Date().toISOString();
@@ -23,12 +23,14 @@ app.post("/api/skat-user", (req, res) => {
     let sql = `INSERT INTO SkatUser(UserId, CreatedAt, IsActive) Values(?,?,?)`;
     db.run(sql, [UserId, createdAt, isActive], (err) => {
         if (err) {
+            // this message is to show that there was a problem creating the user
             res.status(400).json({
                 message: "Problem in creating a user!",
                 error: err.message
             });
             console.log(err.message);
         }else{
+            // this message is to show that the user has been created
             console.log("A new row has been created");
             res.status(201).json({
                 message: "A skat user created"
@@ -37,16 +39,18 @@ app.post("/api/skat-user", (req, res) => {
     });
 });
 
-// Read Skat User
+// Here we are able to Read Skat user
 app.get("/api/skat-user", (req, res) => {
     let sql = `SELECT * FROM SkatUser`;
     db.all(sql, [], (err, skatUsers) => {
         if (err){
             res.status(400).json({
+                // this message is to show that there is a problem showing the skat users
                 message: "Problem!! Can't show skat users",
                 error: err
             });
         } else{
+            // this will show the skat users
             res.status(200).json({
                 skatUsers
             });
@@ -54,7 +58,7 @@ app.get("/api/skat-user", (req, res) => {
     });
 });
 
-// Read Skat User by ID
+// Here we will be able to read Skat User by ID
 app.get("/api/skat-user/:id", (req, res) => {
     console.log("req.params.id: ", req.params.id);
     let sql = `SELECT * FROM SkatUser WHERE Id = ?`;
@@ -67,11 +71,13 @@ app.get("/api/skat-user/:id", (req, res) => {
             console.log(err);
         }else{
             if (skatUser.length){
+                // this message is to show that the the user with this id has been found
                 res.status(200).json({
                     skatUser
                 });
             }else{
                 res.status(404).json({
+                    // this message is to show that the user cannot be found with this id
                     message: "No skat user was found with this ID"
                 });
             }
@@ -79,7 +85,7 @@ app.get("/api/skat-user/:id", (req, res) => {
     });
 });
 
-// Update skat User
+// here we wil be able to update the skat User
 app.put("/api/skat-user/:id", (req, res) => {
     console.log("req.params.id: ", req.params.id);
     let userId = req.body.UserId;
@@ -96,18 +102,21 @@ app.put("/api/skat-user/:id", (req, res) => {
         } else {
             if(!User.length) {
                 res.status(404).json({
+                    // this message is to show that the user cannot be found with this id
                     message: "No Skat user was found with this ID"
                 });
             } else {
                 db.run(sqlUpdate, [userId, createdAt, isActive, req.params.id], (err) => {
                     if (err) {
                         res.status(400).json({
+                            // this message is to show that it was not possible to update this user
                             message: "This skat user could not be updated",
                             error: err.message
                         });
                         console.log(err.message);
                     } else {
                         res.status(201).json({
+                            // this message is to show that the user was successfully updated
                             message: "Skat User updated"
                         });
                     }
@@ -117,7 +126,7 @@ app.put("/api/skat-user/:id", (req, res) => {
     });
 });
 
-// Delete Skat User
+// here we will be able to Delete Skat User
 app.delete("/api/skat-user/:id", (req, res) => {
     console.log("req.param.id: ", req.params.id);
     let sqlGet = `SELECT * FROM SkatUser WHERE Id = ?`;
@@ -131,18 +140,21 @@ app.delete("/api/skat-user/:id", (req, res) => {
         } else {
             if (!skatUser.length) {
                 res.status(404).json({
+                    // this message is to show that the user cannot be found with this id
                     message: "No skat user was found with this ID"
                 });
             } else {
                 db.run(sqlDelete, req.params.id, (err) => {
                     if (err) {
                         res.status(400).json({
+                            // this message is to show that the user cannot be deleted
                             message: "This skat user can not be deleted",
                             error: err.message
                         });
                         console.log(err.message);
                     } else {
                         res.status(201).json({
+                            // this message is to show that the use has been successfully deleted
                             message: "Skat User Deleted"
                         });
                     }
@@ -152,7 +164,7 @@ app.delete("/api/skat-user/:id", (req, res) => {
     });
 });
 
-// Create a SkatYear
+//  here we will be able to Create a SkatYear
 app.post("/api/skat-year", (req, res) => {
     let sql = `INSERT INTO SkatYear(Label, CreatedAt, ModifiedAt, StartDate, EndDate) Values(?,?,?,?,?)`;
     let getThisSkatId = 0;
@@ -166,6 +178,7 @@ app.post("/api/skat-year", (req, res) => {
     db.run(sql, [label, createdAt,modifiedAt, startDate, endDate], function (err)  {
         if (err) {
             res.status(400).json({
+                // this message is to show that there was a problem in creating the skatyear
                 message: "Problem in creating skatYear!",
                 error: err.message
             });
@@ -175,20 +188,21 @@ app.post("/api/skat-year", (req, res) => {
             db.all(`SELECT * FROM SkatUser`, [], (err, skatUser) => {
                 if (err) {
                     res.status(400).json({
-                        message: "Problem! Cann't show skat users",
+                        // this message is to show that the user cannot be found with that id
+                        message: "Problem! Can't show skat users",
                         error: err
                     });
                 } else {            
                     skatUser.forEach((row) => {
                         createSkatUserYear(row.Id, getThisSkatId, row.UserId, 0, 0);
                       });
-                      console.log("SkatUserYear, rows are craeted")
+                      // this message is to show that the skatUserYear and SkatYear has been created successfully
+                      console.log("SkatUserYear, rows are created")
                       res.status(201).json({
                         message: "SkatYear has been created with skatUserYear"
                     });
                 }
             });
-            
             console.log(`A new row of SkatYear has been created.`);            
         }
     });
@@ -199,23 +213,26 @@ app.post("/api/skat-year", (req, res) => {
         db.run(sqlSkatUserYear, [skatUserId, skatYearId, userId, isPaid, amount], (err, row) => {
             if (err) {
                 res.status(400).json({
+                    // this message is to show that there is a problem with creating the skatUserYear
                     message: "Problem in creating skatUserYear!",
                     error: err.message
                 });
                 console.log(err.message);
             }else{
+                // this message is to show that the skatuseryear has been created
                 console.log("A new row of SkatUserYear has been created");                
             }
         });
     }
 });
 
-// Read SkatYear
+// Here we will be able to Read SkatYear
 app.get("/api/skat-year", (req, res) => {
     let sql = `SELECT * FROM SkatYear`;
     db.all(sql, [], (err, skatYear) => {
         if (err){
             res.status(400).json({
+                // this message is to show that the skatyear cannot be found
                 message: "Problem!! Can't show skatYear",
                 error: err
             });
@@ -227,7 +244,7 @@ app.get("/api/skat-year", (req, res) => {
     });
 });
 
-// Read SkatYear by ID
+// here we will be able to Read SkatYear by ID
 app.get("/api/skat-year/:id", (req, res) => {
     console.log("req.params.id: ", req.params.id);
     let sql = `SELECT * FROM SkatYear WHERE Id = ?`;
@@ -240,11 +257,13 @@ app.get("/api/skat-year/:id", (req, res) => {
             console.log(err);
         }else{
             if (skatYear.length){
+                // this message is to show that the skatyear was found with this id
                 res.status(200).json({
                     skatYear
                 });
             }else{
                 res.status(404).json({
+                    // this message is to show that the skatyear cannot be found with this id
                     message: "There was no SkatYear found with this ID"
                 });
             }
@@ -252,7 +271,7 @@ app.get("/api/skat-year/:id", (req, res) => {
     });
 });
 
-// Update SkatYear
+// here we will be able to Update SkatYear
 app.put("/api/skat-year/:id", (req, res) => {
     console.log("req.params.id: ", req.params.id);
     let sqlGet = `SELECT * FROM SkatYear WHERE Id = ?`;
@@ -271,18 +290,21 @@ app.put("/api/skat-year/:id", (req, res) => {
         } else {
             if(!skatYear.length) {
                 res.status(404).json({
+                    // this message is to show that the skatyear cannot be found with this id
                     message: "There was no SkatYear found with this ID"
                 });
             } else {
                 db.run(sqlUpdate, [label, modifiedAt, startDate, endDate, req.params.id], (err) => {
                     if (err) {
                         res.status(400).json({
+                            // this message is to show that the skatyear was not able to be updated
                             message: "This SkatYear could not be updated",
                             error: err.message
                         });
                         console.log(err.message);
                     } else {
                         res.status(201).json({
+                            // this message is to show that the skatyear was updated successfully
                             message: "SkatYear updated"
                         });
                     }
@@ -292,7 +314,7 @@ app.put("/api/skat-year/:id", (req, res) => {
     });
 });
 
-// Delete SkatYear
+// here we was be able to Delete the skatyear
 app.delete("/api/skat/Skatyear/:id", (req, res) => {
     let sqlGet = `SELECT * FROM SkatYear WHERE Id = ?`;
     let sqlDelete = `DELETE FROM SkatYear WHERE Id = ?`;
@@ -305,18 +327,21 @@ app.delete("/api/skat/Skatyear/:id", (req, res) => {
         } else {
             if (!skatYear.length) {
                 res.status(404).json({
+                    // this message is to show that the skatyear cannot be found with this id
                     message: "There was no SkatYear found with this ID"
                 });
             } else {
                 db.run(sqlDelete, req.params.id, (err) => {
                     if (err) {
                         res.status(400).json({
+                            // this message is to show that is was not possible to delete the skatYear
                             message: "This SkatYear can not be deleted",
                             error: err.message
                         });
                         console.log(err.message);
                     } else {
                         res.status(201).json({
+                            // this message is to show that the skatYear was deleted successfully
                             message: "SkatYear Deleted"
                         });
                     }
@@ -329,16 +354,15 @@ app.delete("/api/skat/Skatyear/:id", (req, res) => {
             console.log(err);
         } else {
             if (!skatUserYear.length){
+                // this message is to show that the skatuseryear cannot be found with this id
                 console.log("No row was found to delete from SkatUserYear with this id!!!")
             } else {
+                // this message is to show that the skatuseryear was successfully deleted 
                 console.log("A row is deleted from SkatUserYear")
             }
         }
     });
 });
-
-
-
 
 // Create a SkatYear
 // app.post("/api/skatUserYear", (req, res) => {
@@ -382,6 +406,7 @@ app.post("/api/pay-taxes", (req, res) => {
         }
         if (!isFound) {
             res.status(404).json({
+                // this message is to show that the user cannot be found with this id
                 message: "No user was found with this ID"
             });
         } else {
@@ -455,11 +480,13 @@ app.post("/api/pay-taxes", (req, res) => {
                         }
                         if (unpaidTaxes) {
                             res.status(400).json({
+                                // this message is to show that the taxes has been paid
                                 message: "The taxes for this year already paid"
                             });
                         }
                     } else {
                         res.status(404).json({
+                            // this message is to show that the skatuser cannot be found with this id
                             message: "No skat user years was found with this ID"
                         });
                     }
