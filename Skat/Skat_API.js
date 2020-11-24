@@ -60,7 +60,6 @@ app.get("/api/skat-user", (req, res) => {
 
 // Here we will be able to read Skat User by ID
 app.get("/api/skat-user/:id", (req, res) => {
-    console.log("req.params.id: ", req.params.id);
     let sql = `SELECT * FROM SkatUser WHERE Id = ?`;
 
     db.all(sql, [req.params.id], (err, skatUser) => {
@@ -87,7 +86,6 @@ app.get("/api/skat-user/:id", (req, res) => {
 
 // here we wil be able to update the skat User
 app.put("/api/skat-user/:id", (req, res) => {
-    console.log("req.params.id: ", req.params.id);
     let userId = req.body.UserId;
     let sqlGet = `SELECT * FROM SkatUser WHERE ID = ?`;
     let sqlUpdate = `UPDATE SkatUser SET UserId = ?, CreatedAt = ?, IsActive = ? WHERE ID = ?`;
@@ -128,7 +126,6 @@ app.put("/api/skat-user/:id", (req, res) => {
 
 // here we will be able to Delete Skat User
 app.delete("/api/skat-user/:id", (req, res) => {
-    console.log("req.param.id: ", req.params.id);
     let sqlGet = `SELECT * FROM SkatUser WHERE Id = ?`;
     let sqlDelete = `DELETE FROM SkatUser WHERE Id = ?`;
     db.all(sqlGet, [req.params.id], (err, skatUser) => {
@@ -246,7 +243,6 @@ app.get("/api/skat-year", (req, res) => {
 
 // here we will be able to Read SkatYear by ID
 app.get("/api/skat-year/:id", (req, res) => {
-    console.log("req.params.id: ", req.params.id);
     let sql = `SELECT * FROM SkatYear WHERE Id = ?`;
 
     db.all(sql, [req.params.id], (err, skatYear) => {
@@ -273,7 +269,6 @@ app.get("/api/skat-year/:id", (req, res) => {
 
 // here we will be able to Update SkatYear
 app.put("/api/skat-year/:id", (req, res) => {
-    console.log("req.params.id: ", req.params.id);
     let sqlGet = `SELECT * FROM SkatYear WHERE Id = ?`;
     let sqlUpdate = `UPDATE SkatYear SET Label = ?, ModifiedAt = ?, StartDate = ?, EndDate = ? WHERE Id = ?`;
     let modifiedAt = new Date().toISOString();
@@ -395,7 +390,7 @@ app.post("/api/pay-taxes", (req, res) => {
     let sqlUpdate = "UPDATE SkatUserYear SET isPaid = ?, Amount = ? WHERE Id = ?";
 
     // Go through all the bank users.
-    axios.get("http://localhost:8001/api/bank").then(response => {
+    axios.get("http://localhost:5005/api/bank").then(response => {
         let bankUsers = response.data.bankUsers;
         let isFound = false;
         for (let i = 0; i < bankUsers.length; i++) {

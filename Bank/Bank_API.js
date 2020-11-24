@@ -2,7 +2,7 @@ const sqlite3 = require("sqlite3").verbose();
 const axios = require("axios");
 const express = require("express");
 const HOSTNAME = "localhost";
-const PORT = 8001;
+const PORT = 5005;
 let app = express();
 app.use(express.json());
 
@@ -501,7 +501,7 @@ app.post("/api/create-loan", (req, res) => {
                     // We send the the loanAmount and the amount we have in the account to the function.
                     axios.post(`http://localhost:7071/api/Loan_Algorithm`, {
                         "loan": loanAmount,
-                        "totalAccountAmount": amount
+                        "AccountAmount": amount
                     }).then((response) => {
                         console.log(loanAmount+ amount);
                         // We add the amount we have in the bank to the loan.
