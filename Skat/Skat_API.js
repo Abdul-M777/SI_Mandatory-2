@@ -293,8 +293,7 @@ app.put("/api/skat-year/:id", (req, res) => {
 });
 
 // Delete SkatYear
-app.delete("/api/skat-year/:id", (req, res) => {
-    console.log("req.param.id: ", req.params.id);
+app.delete("/api/skat/Skatyear/:id", (req, res) => {
     let sqlGet = `SELECT * FROM SkatYear WHERE Id = ?`;
     let sqlDelete = `DELETE FROM SkatYear WHERE Id = ?`;
     db.all(sqlGet, [req.params.id], (err, skatYear) => {
@@ -317,7 +316,7 @@ app.delete("/api/skat-year/:id", (req, res) => {
                         });
                         console.log(err.message);
                     } else {
-                        res.status(200).json({
+                        res.status(201).json({
                             message: "SkatYear Deleted"
                         });
                     }
@@ -325,7 +324,19 @@ app.delete("/api/skat-year/:id", (req, res) => {
             }
         }
     });
+    db.all(`DELETE FROM SkatUserYear Where SkatYearId = ?`,[req.params.id], (err, skatUserYear) => {
+        if (err) {
+            console.log(err);
+        } else {
+            if (!skatUserYear.length){
+                console.log("No row was found to delete from SkatUserYear with this id!!!")
+            } else {
+                console.log("A row is deleted from SkatUserYear")
+            }
+        }
+    });
 });
+
 
 
 
@@ -353,9 +364,9 @@ app.delete("/api/skat-year/:id", (req, res) => {
 
 // Pay Taxes
 app.post("/api/pay-taxes", (req, res) => {
-    let userid = req.body.userId;
+    let userId = req.body.userId;
     let totalAmount = req.body.totalAmount;
-    let sqlGet = "SELECT * FROM SkatYear WHERE Id = ?";
+    let sqlGet = "SELECT * FROM SkatUserYear WHERE UserId = ?";
     let sqlGetSkatYear = "SELECT * FROM SkatYear WHERE Id = ?";
     let sqlUpdate = "UPDATE SkatUserYear SET isPaid = ?, Amount = ? WHERE Id = ?";
 
@@ -365,6 +376,7 @@ app.post("/api/pay-taxes", (req, res) => {
         let isFound = false;
         for (let i = 0; i < bankUsers.length; i++) {
             if (bankUsers[i].UserId === userId) {
+                console.log(userId);
                 isFound = true;
             }
         }
